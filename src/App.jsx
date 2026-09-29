@@ -1,18 +1,45 @@
 import { useState } from 'react'
+import Dashboard from './Dashboard.jsx'
 import './App.css'
 
 function App() {
   const [isPasswordVisible, setIsPasswordVisible] = useState(false)
   const [isResetMode, setIsResetMode] = useState(false)
+  const [isRegistrationMode, setIsRegistrationMode] = useState(false)
+  const [showDashboard, setShowDashboard] = useState(false)
+  const [currentUser, setCurrentUser] = useState(null)
   const [message, setMessage] = useState('')
 
   function handleSubmit(event) {
     event.preventDefault()
-    setMessage(
-      isResetMode
-        ? 'Password recovery is ready to connect to your authentication service.'
-        : 'Sign-in is ready to connect to your authentication service.',
-    )
+    if (isResetMode) {
+      setMessage('Password recovery requires a connected email service.')
+      return
+    }
+
+    const formData = new FormData(event.currentTarget)
+    const email = formData.get('email')
+    setCurrentUser({
+      name: formData.get('name') || email.split('@')[0],
+      email,
+      company: formData.get('company') || 'Waypoint Demo',
+      role: isRegistrationMode ? 'Customer' : formData.get('role'),
+    })
+    setShowDashboard(true)
+  }
+
+  function enterDemo() {
+    setCurrentUser({
+      name: 'Alex Morgan',
+      email: 'alex.morgan@waypoint.demo',
+      company: 'Waypoint Demo',
+      role: 'Administrator',
+    })
+    setShowDashboard(true)
+  }
+
+  if (showDashboard) {
+    return <Dashboard currentUser={currentUser} onLogout={() => setShowDashboard(false)} />
   }
 
   return (
@@ -77,16 +104,32 @@ function App() {
 
         <div className="login-content">
           <div className="form-heading">
-            <p className="form-eyebrow">OPERATIONS PORTAL</p>
-            <h2>{isResetMode ? 'Reset your password' : 'Welcome back'}</h2>
+            <p className="form-eyebrow">{isRegistrationMode ? 'CUSTOMER REGISTRATION' : 'OPERATIONS PORTAL'}</p>
+            <h2>
+              {isResetMode
+                ? 'Reset your password'
+                : isRegistrationMode
+                  ? 'Join your network'
+                  : 'Welcome back'}
+            </h2>
             <p>
               {isResetMode
                 ? 'Enter your work email and we’ll help you get back on the road.'
-                : 'Sign in to pick up where your network left off.'}
+                : isRegistrationMode
+                  ? 'Create a customer profile for delivery updates and order tracking.'
+                  : 'Sign in to pick up where your network left off.'}
             </p>
           </div>
 
           <form className="login-form" onSubmit={handleSubmit}>
+            {isRegistrationMode && (
+              <>
+                <label htmlFor="name">Full name</label>
+                <input autoComplete="name" id="name" name="name" placeholder="Your name" required />
+                <label className="extra-field-label" htmlFor="company">Company</label>
+                <input autoComplete="organization" id="company" name="company" placeholder="Company name" required />
+              </>
+            )}
             <label htmlFor="email">Work email</label>
             <input
               autoComplete="email"
@@ -129,6 +172,17 @@ function App() {
                     {isPasswordVisible ? 'Hide' : 'Show'}
                   </button>
                 </div>
+                {!isRegistrationMode && (
+                  <>
+                    <label className="role-label" htmlFor="role">Workspace role</label>
+                    <select className="role-select" id="role" name="role" defaultValue="Administrator">
+                      <option>Administrator</option>
+                      <option>Dispatcher</option>
+                      <option>Driver</option>
+                      <option>Customer</option>
+                    </select>
+                  </>
+                )}
                 <label className="remember-option">
                   <input name="remember" type="checkbox" />
                   <span>Keep me signed in</span>
@@ -137,7 +191,11 @@ function App() {
             )}
 
             <button className="submit-button" type="submit">
-              {isResetMode ? 'Send reset instructions' : 'Sign in'}
+              {isResetMode
+                ? 'Send reset instructions'
+                : isRegistrationMode
+                  ? 'Create customer profile'
+                  : 'Continue to workspace'}
               <span aria-hidden="true">↗</span>
             </button>
             {message && <p className="form-message" role="status">{message}</p>}
@@ -155,15 +213,29 @@ function App() {
               <span aria-hidden="true">←</span> Back to sign in
             </button>
           ) : (
-            <p className="access-note">
-              Need access? Contact your system administrator.
-            </p>
+            <div className="login-secondary-actions">
+              <button
+                className="mode-switch"
+                onClick={() => {
+                  setIsRegistrationMode((mode) => !mode)
+                  setMessage('')
+                }}
+                type="button"
+              >
+                {isRegistrationMode ? 'Already registered? Sign in' : 'New customer? Create an account'}
+              </button>
+              {!isRegistrationMode && (
+                <button className="demo-entry" onClick={enterDemo} type="button">
+                  Explore the operations demo <span aria-hidden="true">↗</span>
+                </button>
+              )}
+            </div>
           )}
         </div>
 
         <footer className="form-footer">
           <span>© 2026 WAYPOINT LOGISTICS</span>
-          <span className="secure-label"><span aria-hidden="true">●</span> SECURE ACCESS</span>
+          <span className="secure-label"><span aria-hidden="true">●</span> FRONTEND DEMO</span>
         </footer>
       </section>
     </main>

@@ -426,6 +426,17 @@
 
 .back-to-login span { font-size: 17px; }
 
+.extra-field-label { margin-top: 18px; }
+.role-label { margin-top: 20px; color: #35423d; font-size: 12px; font-weight: 650; }
+.role-select { height: 46px; margin-top: 8px; padding: 0 12px; border: 1px solid #d9dfd9; border-radius: 3px; color: var(--ink); background: #fff; font: inherit; font-size: 12px; }
+.login-secondary-actions { display: grid; justify-items: center; gap: 15px; margin-top: 23px; }
+.mode-switch,.demo-entry { padding: 0; border: 0; background: transparent; font: inherit; cursor: pointer; }
+.mode-switch { color: var(--green); font-size: 11px; font-weight: 650; }
+.demo-entry { display: flex; align-items: center; justify-content: center; gap: 7px; width: 100%; min-height: 40px; border: 1px solid #dce3d9; color: #58665c; font-size: 10px; font-weight: 650; }
+.demo-entry:hover { border-color: #8ba88e; background: #f3f5ef; }
+.demo-entry span { color: var(--green); font-size: 14px; }
+.login-secondary-actions + .back-to-login { display: flex; justify-content: center; width: 100%; }
+
 .form-footer {
   display: flex;
   justify-content: space-between;
