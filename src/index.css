@@ -9,11 +9,12 @@
   font-optical-sizing: auto;
   font-weight: 400;
   color: #1d2923;
-  background: #f8f7f2;
+  background: #edf3f1;
 
-  --paper: #f8f7f2;
+  --paper: #f3f7f5;
+  --paper-deep: #eaf1ee;
   --ink: #1d2923;
-  --muted: #7b847e;
+  --muted: #6f7d78;
   --green: #2c6048;
   --lime: #c9e776;
   --display: 'Manrope', 'Segoe UI', sans-serif;
@@ -29,13 +30,14 @@
 html {
   min-width: 320px;
   min-height: 100%;
-  background: var(--paper);
+  background: linear-gradient(180deg, #f7faf9 0%, #edf3f1 100%);
 }
 
 body {
   min-width: 320px;
   min-height: 100svh;
   margin: 0;
+  background: linear-gradient(180deg, #f7faf9 0%, #edf3f1 100%);
 }
 
 button,
@@ -50,4 +52,5 @@ input:focus-visible {
 
 #root {
   min-height: 100svh;
+  background: transparent;
 }
