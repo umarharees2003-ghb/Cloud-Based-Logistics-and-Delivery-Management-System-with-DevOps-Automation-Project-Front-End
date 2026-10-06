@@ -22,43 +22,46 @@ function BrandMark() {
   );
 }
 
-const metrics = [
-  { value: "24/7", label: "Fleet visibility" },
-  { value: "96%", label: "On-time delivery" },
-  { value: "42%", label: "Lower operating cost" },
+const shipments = [
+  { id: "SHP-10482", customer: "Miriam Patel", route: "Newark → Brooklyn", status: "In transit", eta: "14:30", city: "New York, NY" },
+  { id: "SHP-10481", customer: "James Liu", route: "Jersey City → Queens", status: "Delayed", eta: "14:45", city: "Queens, NY" },
+  { id: "SHP-10480", customer: "Olivia Martin", route: "Newark → Manhattan", status: "Delivered", eta: "13:12", city: "New York, NY" },
+  { id: "SHP-10479", customer: "Ethan Brooks", route: "Elizabeth → Hoboken", status: "Out for delivery", eta: "15:10", city: "Hoboken, NJ" },
+  { id: "SHP-10478", customer: "Sophia Chen", route: "Newark → Staten Island", status: "Pending", eta: "16:00", city: "Staten Island, NY" },
+  { id: "SHP-10477", customer: "Noah Williams", route: "Newark → Manhattan", status: "In transit", eta: "14:38", city: "New York, NY" },
+  { id: "SHP-10476", customer: "Ava Thompson", route: "Brooklyn → Manhattan", status: "Delivered", eta: "12:48", city: "New York, NY" },
+  { id: "SHP-10475", customer: "Lucas Garcia", route: "Jersey City → Bronx", status: "Out for delivery", eta: "15:25", city: "Bronx, NY" },
 ];
 
-const features = [
-  {
-    icon: "⏱",
-    title: "Smart route planning",
-    description:
-      "Automate dispatching and optimize routes based on traffic, capacity, and delivery priorities.",
-  },
-  {
-    icon: "📦",
-    title: "Live order tracking",
-    description:
-      "Track every shipment in real time from warehouse handoff to final-mile arrival with live status alerts.",
-  },
-  {
-    icon: "📊",
-    title: "Operational analytics",
-    description:
-      "Turn logistics data into decisions with carbon, performance, and cost insights built for scale.",
-  },
-  {
-    icon: "🧾",
-    title: "Proof of delivery",
-    description:
-      "Capture signatures, notes, and timestamped delivery evidence to reduce disputes and improve service trust.",
-  },
+const shipmentVolume = [
+  { day: "Wed", count: 42 },
+  { day: "Thu", count: 58 },
+  { day: "Fri", count: 51 },
+  { day: "Sat", count: 31 },
+  { day: "Sun", count: 26 },
+  { day: "Mon", count: 57 },
+  { day: "Tue", count: 72 },
 ];
 
-const steps = [
-  { number: "01", title: "Connect your network", text: "Integrate warehouses, vehicles, drivers, and customers into one control layer." },
-  { number: "02", title: "Plan and dispatch", text: "Use AI-assisted route logic to assign jobs based on urgency, distance, and capacity." },
-  { number: "03", title: "Track and improve", text: "Monitor delivery performance in real time and optimize continuously as conditions change." },
+const sidebarGroups = [
+  {
+    label: "Workspace",
+    items: [
+      { id: "overview", label: "Overview", icon: "⌂" },
+      { id: "deliveries", label: "Deliveries", icon: "▤", badge: "248" },
+      { id: "fleet", label: "Fleet management", icon: "▰" },
+      { id: "devops", label: "DevOps automation", icon: "⌘" },
+    ],
+  },
+  {
+    label: "Administration",
+    items: [
+      { id: "analytics", label: "Analytics & reports", icon: "▥" },
+      { id: "team", label: "Team & access", icon: "♙" },
+      { id: "integrations", label: "Integrations", icon: "⌁" },
+      { id: "settings", label: "Settings", icon: "⚙" },
+    ],
+  },
 ];
 
 function WelcomeScreen({ onAuth }) {
