@@ -22,712 +22,562 @@ function BrandMark() {
   );
 }
 
-function EyeIcon({ visible }) {
-  return visible ? (
-    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-      <path
-        d="M3 3l18 18M10.6 10.6a2 2 0 0 0 2.8 2.8"
-        stroke="currentColor"
-        strokeWidth="1.7"
-        strokeLinecap="round"
-      />
-      <path
-        d="M9.9 5.2A10.8 10.8 0 0 1 12 5c5 0 8.5 4.5 9.5 6.4a1.3 1.3 0 0 1 0 1.2 15 15 0 0 1-3.2 3.9M6.2 6.3a15 15 0 0 0-3.7 5.1 1.3 1.3 0 0 0 0 1.2C3.5 14.5 7 19 12 19c1 0 2-.2 2.9-.5"
-        stroke="currentColor"
-        strokeWidth="1.7"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
-  ) : (
-    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-      <path
-        d="M2.5 12s3.5-7 9.5-7 9.5 7 9.5 7-3.5 7-9.5 7-9.5-7-9.5-7Z"
-        stroke="currentColor"
-        strokeWidth="1.7"
-        strokeLinejoin="round"
-      />
-      <circle cx="12" cy="12" r="3" stroke="currentColor" strokeWidth="1.7" />
-    </svg>
+const metrics = [
+  { value: "24/7", label: "Fleet visibility" },
+  { value: "96%", label: "On-time delivery" },
+  { value: "42%", label: "Lower operating cost" },
+];
+
+const features = [
+  {
+    icon: "⏱",
+    title: "Smart route planning",
+    description:
+      "Automate dispatching and optimize routes based on traffic, capacity, and delivery priorities.",
+  },
+  {
+    icon: "📦",
+    title: "Live order tracking",
+    description:
+      "Track every shipment in real time from warehouse handoff to final-mile arrival with live status alerts.",
+  },
+  {
+    icon: "📊",
+    title: "Operational analytics",
+    description:
+      "Turn logistics data into decisions with carbon, performance, and cost insights built for scale.",
+  },
+  {
+    icon: "🧾",
+    title: "Proof of delivery",
+    description:
+      "Capture signatures, notes, and timestamped delivery evidence to reduce disputes and improve service trust.",
+  },
+];
+
+const steps = [
+  { number: "01", title: "Connect your network", text: "Integrate warehouses, vehicles, drivers, and customers into one control layer." },
+  { number: "02", title: "Plan and dispatch", text: "Use AI-assisted route logic to assign jobs based on urgency, distance, and capacity." },
+  { number: "03", title: "Track and improve", text: "Monitor delivery performance in real time and optimize continuously as conditions change." },
+];
+
+function WelcomeScreen({ onAuth }) {
+  return (
+    <div className="welcome-shell">
+      <header className="welcome-topbar">
+        <a className="brand home-brand" href="/" aria-label="Routeflow home">
+          <BrandMark />
+          <span>routeflow</span>
+        </a>
+        <div className="welcome-actions">
+          <button
+            className="ghost-btn"
+            type="button"
+            onClick={() => onAuth("login")}
+          >
+            Sign in
+          </button>
+          <button
+            className="primary-btn"
+            type="button"
+            onClick={() => onAuth("signup")}
+          >
+            Sign up
+          </button>
+        </div>
+      </header>
+
+      <main className="welcome-content">
+        <section className="welcome-copy">
+          <span className="eyebrow dark-eyebrow">
+            <span className="eyebrow-dot" />
+            YOUR DELIVERY NETWORK, IN SYNC
+          </span>
+          <h1>
+            Move every
+            <span> delivery forward.</span>
+          </h1>
+          <p>
+            Meet Routeflow: the cloud-based logistics platform that brings your
+            orders, routes, drivers, and customers together in one clear view.
+          </p>
+          <button
+            className="primary-btn welcome-cta"
+            type="button"
+            onClick={() => onAuth("login")}
+          >
+            Sign in to Routeflow
+            <svg viewBox="0 0 20 20" fill="none" aria-hidden="true">
+              <path
+                d="M4 10h12m-5-5 5 5-5 5"
+                stroke="currentColor"
+                strokeWidth="1.7"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+          </button>
+          <span className="welcome-caption">Smarter routes. Happier customers.</span>
+        </section>
+
+        <aside className="welcome-preview" aria-label="Routeflow operations preview">
+          <div className="preview-orbit orbit-one" />
+          <div className="preview-orbit orbit-two" />
+          <div className="preview-card">
+            <div className="preview-heading">
+              <span className="preview-indicator" />
+              <span>NETWORK OVERVIEW</span>
+              <span className="preview-live">LIVE</span>
+            </div>
+            <div className="preview-map" aria-hidden="true">
+              <span className="preview-route preview-route-one" />
+              <span className="preview-route preview-route-two" />
+              <span className="preview-node node-one" />
+              <span className="preview-node node-two" />
+              <span className="preview-node node-three" />
+              <span className="preview-node node-four" />
+            </div>
+            <div className="preview-summary">
+              <div>
+                <span>Deliveries today</span>
+                <strong>1,284</strong>
+              </div>
+              <div>
+                <span>On-time rate</span>
+                <strong>96.8%</strong>
+              </div>
+            </div>
+          </div>
+          <div className="preview-note">
+            <span className="preview-check">✓</span>
+            <span>
+              <strong>Route optimized</strong>
+              <small>Saving 18 minutes</small>
+            </span>
+          </div>
+        </aside>
+      </main>
+      <footer className="welcome-footer">
+        <span>© 2026 Routeflow Logistics</span>
+        <span>Built for every mile.</span>
+      </footer>
+    </div>
   );
 }
 
-function RouteIllustration() {
+function AuthScreen({ mode, onModeChange, onBack, onSuccess }) {
+  const [notice, setNotice] = useState("");
+  const isSignup = mode === "signup";
+
+  function handleSubmit(event) {
+    event.preventDefault();
+    const formData = new FormData(event.currentTarget);
+
+    if (isSignup && formData.get("password") !== formData.get("confirmPassword")) {
+      setNotice("The passwords do not match. Please check and try again.");
+      return;
+    }
+
+    const name = isSignup
+      ? String(formData.get("fullName")).trim()
+      : String(formData.get("email")).trim();
+    onSuccess(name);
+  }
+
+  function changeMode(nextMode) {
+    setNotice("");
+    onModeChange(nextMode);
+  }
+
   return (
-    <svg
-      className="route-illustration"
-      viewBox="0 0 620 500"
-      fill="none"
-      aria-hidden="true"
-      preserveAspectRatio="xMidYMid meet"
-    >
-      <defs>
-        <linearGradient id="route-line" x1="154" y1="346" x2="467" y2="127">
-          <stop stopColor="#75E0BB" />
-          <stop offset="1" stopColor="#75E0BB" stopOpacity=".15" />
-        </linearGradient>
-        <linearGradient id="card-fill" x1="189" y1="149" x2="430" y2="394">
-          <stop stopColor="#20364A" />
-          <stop offset="1" stopColor="#142739" />
-        </linearGradient>
-        <filter
-          id="card-shadow"
-          x="96"
-          y="77"
-          width="446"
-          height="393"
-          colorInterpolationFilters="sRGB"
-          filterUnits="userSpaceOnUse"
+    <main className="auth-shell">
+      <header className="auth-topbar">
+        <a
+          className="brand home-brand"
+          href="/"
+          aria-label="Routeflow home"
+          onClick={(event) => {
+            event.preventDefault();
+            onBack();
+          }}
         >
-          <feGaussianBlur stdDeviation="22" />
-        </filter>
-      </defs>
-      <circle cx="309" cy="250" r="202" stroke="#fff" strokeOpacity=".045" />
-      <circle cx="309" cy="250" r="155" stroke="#fff" strokeOpacity=".045" />
-      <circle cx="309" cy="250" r="108" stroke="#fff" strokeOpacity=".045" />
-      <path
-        d="m115 351 49-48 45 17 51-74 49 28 51-50 36 9 41-64 45-18"
-        stroke="#fff"
-        strokeOpacity=".07"
-        strokeWidth="1.5"
-        strokeDasharray="5 9"
-        strokeLinecap="round"
-      />
-      <path
-        d="M155 349c41 0 37-73 91-73s50 40 99 40 47-111 113-111"
-        stroke="#000"
-        strokeOpacity=".2"
-        strokeWidth="8"
-        strokeLinecap="round"
-        filter="url(#card-shadow)"
-      />
-      <path
-        d="M155 349c41 0 37-73 91-73s50 40 99 40 47-111 113-111"
-        stroke="url(#route-line)"
-        strokeWidth="3"
-        strokeLinecap="round"
-        strokeDasharray="5 8"
-      />
-      <circle cx="155" cy="349" r="9" fill="#75E0BB" fillOpacity=".16" />
-      <circle cx="155" cy="349" r="4" fill="#75E0BB" />
-      <circle cx="458" cy="205" r="9" fill="#75E0BB" fillOpacity=".16" />
-      <circle cx="458" cy="205" r="4" fill="#75E0BB" />
-      <g transform="translate(190 118)">
-        <rect width="238" height="238" rx="24" fill="#0E1C2B" fillOpacity=".48" />
-        <rect
-          x=".75"
-          y=".75"
-          width="236.5"
-          height="236.5"
-          rx="23.25"
-          stroke="#fff"
-          strokeOpacity=".1"
-          strokeWidth="1.5"
-        />
-        <path
-          d="m40 166 47-55 37 24 48-66 36 8"
-          stroke="#B6C8CE"
-          strokeOpacity=".3"
-          strokeWidth="2"
-          strokeDasharray="3 8"
-          strokeLinecap="round"
-        />
-        <path
-          d="m94 95 14-20 14 20c0 9-6 15-14 15s-14-6-14-15Z"
-          fill="#75E0BB"
-        />
-        <circle cx="108" cy="95" r="4" fill="#142739" />
-        <path
-          d="m150 141 12-18 12 18c0 8-5 13-12 13s-12-5-12-13Z"
-          fill="#F6B875"
-        />
-        <circle cx="162" cy="141" r="3.5" fill="#142739" />
-        <rect x="22" y="21" width="79" height="28" rx="14" fill="#253D4C" />
-        <circle cx="36" cy="35" r="4" fill="#75E0BB" />
-        <path
-          d="M47 35h39"
-          stroke="#D3DFE0"
-          strokeOpacity=".75"
-          strokeWidth="3"
-          strokeLinecap="round"
-        />
-        <rect x="140" y="190" width="75" height="25" rx="12.5" fill="#253D4C" />
-        <path
-          d="M152 202.5h31"
-          stroke="#D3DFE0"
-          strokeOpacity=".65"
-          strokeWidth="3"
-          strokeLinecap="round"
-        />
-      </g>
-      <g transform="translate(373 94)">
-        <rect width="150" height="66" rx="14" fill="url(#card-fill)" />
-        <rect
-          x=".75"
-          y=".75"
-          width="148.5"
-          height="64.5"
-          rx="13.25"
-          stroke="#fff"
-          strokeOpacity=".1"
-          strokeWidth="1.5"
-        />
-        <circle cx="25" cy="33" r="12" fill="#75E0BB" fillOpacity=".15" />
-        <path
-          d="m20 33 3.5 3.5L30 30"
-          stroke="#75E0BB"
-          strokeWidth="1.8"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-        <path
-          d="M46 27h64M46 39h39"
-          stroke="#E4EDEF"
-          strokeOpacity=".65"
-          strokeWidth="3"
-          strokeLinecap="round"
-        />
-      </g>
-      <g transform="translate(95 318)">
-        <rect width="148" height="63" rx="14" fill="#20364A" />
-        <rect
-          x=".75"
-          y=".75"
-          width="146.5"
-          height="61.5"
-          rx="13.25"
-          stroke="#fff"
-          strokeOpacity=".1"
-          strokeWidth="1.5"
-        />
-        <circle cx="25" cy="31.5" r="12" fill="#F6B875" fillOpacity=".16" />
-        <path
-          d="M25 25v7l4 3"
-          stroke="#F6B875"
-          strokeWidth="1.7"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-        <path
-          d="M46 26h63M46 38h41"
-          stroke="#E4EDEF"
-          strokeOpacity=".65"
-          strokeWidth="3"
-          strokeLinecap="round"
-        />
-      </g>
-    </svg>
+          <BrandMark />
+          <span>routeflow</span>
+        </a>
+        <button type="button" className="auth-back" onClick={onBack}>
+          Back to welcome
+        </button>
+      </header>
+
+      <section className="auth-card" aria-labelledby="auth-title">
+        <div className="auth-symbol" aria-hidden="true">
+          <BrandMark />
+        </div>
+        <span className="auth-eyebrow">YOUR LOGISTICS WORKSPACE</span>
+        <h1 id="auth-title">{isSignup ? "Create your account" : "Welcome back"}</h1>
+        <p className="auth-description">
+          {isSignup
+            ? "Sign up to bring your deliveries, routes, and team together."
+            : "Sign in to continue to your Routeflow platform."}
+        </p>
+
+        <div className="auth-tabs" role="tablist" aria-label="Account access">
+          <button
+            id="login-tab"
+            type="button"
+            role="tab"
+            aria-selected={!isSignup}
+            aria-controls="auth-form"
+            className={!isSignup ? "auth-tab active" : "auth-tab"}
+            onClick={() => changeMode("login")}
+          >
+            Sign in
+          </button>
+          <button
+            id="signup-tab"
+            type="button"
+            role="tab"
+            aria-selected={isSignup}
+            aria-controls="auth-form"
+            className={isSignup ? "auth-tab active" : "auth-tab"}
+            onClick={() => changeMode("signup")}
+          >
+            Sign up
+          </button>
+        </div>
+
+        <form id="auth-form" className="auth-form" onSubmit={handleSubmit}>
+          {isSignup && (
+            <label className="auth-field">
+              <span>Full name</span>
+              <input
+                name="fullName"
+                type="text"
+                autoComplete="name"
+                placeholder="Your name"
+                minLength="2"
+                required
+              />
+            </label>
+          )}
+          <label className="auth-field">
+            <span>Work email</span>
+            <input
+              name="email"
+              type="email"
+              autoComplete="email"
+              placeholder="you@company.com"
+              required
+            />
+          </label>
+          <label className="auth-field">
+            <span>Password</span>
+            <input
+              name="password"
+              type="password"
+              autoComplete={isSignup ? "new-password" : "current-password"}
+              placeholder={isSignup ? "At least 8 characters" : "Enter your password"}
+              minLength="8"
+              required
+            />
+          </label>
+          {isSignup && (
+            <label className="auth-field">
+              <span>Confirm password</span>
+              <input
+                name="confirmPassword"
+                type="password"
+                autoComplete="new-password"
+                placeholder="Re-enter your password"
+                minLength="8"
+                required
+              />
+            </label>
+          )}
+          <p className="auth-demo-note">
+            Demo frontend only: forms are not connected to real account authentication.
+          </p>
+          <p className="auth-notice" role="alert" aria-live="polite">
+            {notice}
+          </p>
+          <button className="primary-btn auth-submit" type="submit">
+            {isSignup ? "Create account" : "Sign in"}
+            <svg viewBox="0 0 20 20" fill="none" aria-hidden="true">
+              <path
+                d="M4 10h12m-5-5 5 5-5 5"
+                stroke="currentColor"
+                strokeWidth="1.7"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+          </button>
+        </form>
+        <p className="auth-switch">
+          {isSignup ? "Already have an account?" : "New to Routeflow?"}{" "}
+          <button
+            className="auth-inline-button"
+            type="button"
+            onClick={() => changeMode(isSignup ? "login" : "signup")}
+          >
+            {isSignup ? "Sign in" : "Create an account"}
+          </button>
+        </p>
+      </section>
+    </main>
   );
 }
 
 function App() {
-  const [showPassword, setShowPassword] = useState(false);
-  const [screen, setScreen] = useState("login");
-  const [email, setEmail] = useState(
-    () => window.localStorage.getItem("routeflow.rememberedEmail") ?? "",
-  );
-  const [rememberEmail, setRememberEmail] = useState(
-    () => window.localStorage.getItem("routeflow.rememberedEmail") !== null,
-  );
-  const [passwordConfirmation, setPasswordConfirmation] = useState("");
-  const [notice, setNotice] = useState("");
+  const [screen, setScreen] = useState("welcome");
+  const [authMode, setAuthMode] = useState("login");
+  const [accountLabel, setAccountLabel] = useState("");
 
-  function updateEmail(value) {
-    setEmail(value);
-    if (rememberEmail) {
-      window.localStorage.setItem("routeflow.rememberedEmail", value);
-    }
+  function openAuth(mode) {
+    setAuthMode(mode);
+    setScreen("auth");
+    window.scrollTo({ top: 0, behavior: "instant" });
   }
 
-  function updateRememberEmail(checked) {
-    setRememberEmail(checked);
-    if (checked) {
-      window.localStorage.setItem("routeflow.rememberedEmail", email);
-    } else {
-      window.localStorage.removeItem("routeflow.rememberedEmail");
-    }
+  function openPlatform(label) {
+    setAccountLabel(label);
+    setScreen("platform");
+    window.scrollTo({ top: 0, behavior: "instant" });
   }
 
-  function handleSubmit(event) {
-    event.preventDefault();
-    setNotice("Sign-in isn’t connected yet. Your details have not been sent.");
+  function signOut() {
+    setAccountLabel("");
+    setScreen("welcome");
+    window.scrollTo({ top: 0, behavior: "instant" });
   }
 
-  function openRecovery() {
-    setNotice("");
-    setScreen("recovery");
+  if (screen === "welcome") {
+    return <WelcomeScreen onAuth={openAuth} />;
   }
 
-  function openRegistration() {
-    setNotice("");
-    setPasswordConfirmation("");
-    setScreen("register");
-  }
-
-  function returnToLogin() {
-    setNotice("");
-    setPasswordConfirmation("");
-    setScreen("login");
-  }
-
-  function handleRecoverySubmit(event) {
-    event.preventDefault();
-    setNotice(
-      "Password recovery isn’t connected yet. No reset email has been sent.",
-    );
-  }
-
-  function handleRegistrationSubmit(event) {
-    event.preventDefault();
-    const formData = new FormData(event.currentTarget);
-    if (formData.get("password") !== passwordConfirmation) {
-      setNotice("Those passwords don’t match. Please check and try again.");
-      return;
-    }
-    setNotice(
-      "Account registration isn’t connected yet. Your details have not been sent.",
+  if (screen === "auth") {
+    return (
+      <AuthScreen
+        mode={authMode}
+        onModeChange={setAuthMode}
+        onBack={() => setScreen("welcome")}
+        onSuccess={openPlatform}
+      />
     );
   }
 
   return (
-    <main className="login-layout">
-      <section className="story-panel" aria-label="About Routeflow">
-        <a className="brand" href="/" aria-label="Routeflow home">
+    <div className="home-shell">
+      <header className="topbar">
+        <a className="brand home-brand" href="/" aria-label="Routeflow home">
           <BrandMark />
           <span>routeflow</span>
         </a>
 
-        <div className="story-copy">
-          <span className="eyebrow">
-            <span className="eyebrow-dot" />
-            THE ROUTE TO BETTER DELIVERY
+        <nav className="main-nav" aria-label="Main navigation">
+          <a href="#solutions">Solutions</a>
+          <a href="#features">Features</a>
+          <a href="#insights">Insights</a>
+          <a href="#pricing">Pricing</a>
+        </nav>
+
+        <div className="nav-actions">
+          <span className="account-label" title={accountLabel}>
+            Demo account
           </span>
-          <h1>
-            Every delivery,
-            <br />
-            <span>accounted for.</span>
-          </h1>
-          <p>
-            One clear view of every order, every route, and every mile in
-            between.
-          </p>
+          <button type="button" className="ghost-btn" onClick={signOut}>
+            Sign out
+          </button>
+          <button type="button" className="primary-btn">
+            Book a demo
+          </button>
         </div>
+      </header>
 
-        <RouteIllustration />
+      <main className="landing-page">
+        <section className="hero-section">
+          <div className="hero-copy">
+            <span className="eyebrow">
+              <span className="eyebrow-dot" />
+              SMART LOGISTICS CLOUD
+            </span>
 
-        <div className="panel-footer">
-          <span>Less chasing. More delivering.</span>
-          <span className="footer-divider" />
-          <span>Logistics, in sync.</span>
-        </div>
-      </section>
+            <h1>
+              Deliver faster with
+              <span> full-route visibility.</span>
+            </h1>
 
-      <section className="form-panel" aria-labelledby="login-title">
-        <div className="mobile-brand">
-          <BrandMark />
-          <span>routeflow</span>
-        </div>
-        <div className="login-card">
-          <div className="welcome-icon" aria-hidden="true">
-            <svg viewBox="0 0 24 24" fill="none">
-              <path
-                d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8ZM4.5 20a7.5 7.5 0 0 1 15 0"
-                stroke="currentColor"
-                strokeWidth="1.6"
-                strokeLinecap="round"
-              />
-              <path
-                d="M18 5.5h4M20 3.5v4"
-                stroke="currentColor"
-                strokeWidth="1.6"
-                strokeLinecap="round"
-              />
-            </svg>
-          </div>
-          <span className="card-kicker">
-            {screen === "login"
-              ? "YOUR WORKSPACE AWAITS"
-              : screen === "recovery"
-                ? "ACCOUNT RECOVERY"
-                : "GET STARTED"}
-          </span>
-          <h2 id="login-title">
-            {screen === "login"
-              ? "Welcome back"
-              : screen === "recovery"
-                ? "Reset your password"
-                : "Create your account"}
-          </h2>
-          <p className="card-description">
-            {screen === "login"
-              ? "Sign in to pick up right where you left off."
-              : screen === "recovery"
-                ? "Enter your work email and we’ll help you get back into your workspace."
-                : "Set up your customer account to start managing deliveries."}
-          </p>
+            <p>
+              Routeflow helps logistics teams plan smarter, cut delays, and keep every
+              parcel, van, and customer update in sync from dispatch to doorstep.
+            </p>
 
-          {screen === "login" ? (
-            <form key="login" className="login-form" onSubmit={handleSubmit}>
-              <label htmlFor="email">Work email</label>
-              <div className="input-wrap">
-                <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                  <rect
-                    x="3"
-                    y="5"
-                    width="18"
-                    height="14"
-                    rx="2.5"
-                    stroke="currentColor"
-                    strokeWidth="1.6"
-                  />
-                  <path
-                    d="m4 7 8 6 8-6"
-                    stroke="currentColor"
-                    strokeWidth="1.6"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
-                <input
-                  id="email"
-                  name="email"
-                  type="email"
-                  placeholder="you@company.com"
-                  autoComplete="email"
-                  value={email}
-                  onChange={(event) => updateEmail(event.target.value)}
-                  required
-                />
-              </div>
-
-              <div className="password-label-row">
-                <label htmlFor="password">Password</label>
-                <button className="text-link text-button" type="button" onClick={openRecovery}>
-                  Forgot password?
-                </button>
-              </div>
-              <div className="input-wrap">
-                <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                  <rect
-                    x="4"
-                    y="10"
-                    width="16"
-                    height="11"
-                    rx="2.5"
-                    stroke="currentColor"
-                    strokeWidth="1.6"
-                  />
-                  <path
-                    d="M8 10V7a4 4 0 1 1 8 0v3"
-                    stroke="currentColor"
-                    strokeWidth="1.6"
-                    strokeLinecap="round"
-                  />
-                  <circle cx="12" cy="15.5" r="1.2" fill="currentColor" />
-                </svg>
-                <input
-                  id="password"
-                  name="password"
-                  type={showPassword ? "text" : "password"}
-                  placeholder="Enter your password"
-                  autoComplete="current-password"
-                  minLength="8"
-                  required
-                />
-                <button
-                  className="password-toggle"
-                  type="button"
-                  onClick={() => setShowPassword((current) => !current)}
-                  aria-label={showPassword ? "Hide password" : "Show password"}
-                  aria-pressed={showPassword}
-                >
-                  <EyeIcon visible={showPassword} />
-                </button>
-              </div>
-
-              <label className="remember-option">
-                <input
-                  type="checkbox"
-                  name="rememberEmail"
-                  checked={rememberEmail}
-                  onChange={(event) => updateRememberEmail(event.target.checked)}
-                />
-                <span className="custom-checkbox" aria-hidden="true">
-                  <svg viewBox="0 0 16 16" fill="none">
-                    <path
-                      d="m3.5 8 3 3 6-6"
-                      stroke="currentColor"
-                      strokeWidth="1.8"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                  </svg>
-                </span>
-                <span>Remember my work email</span>
-              </label>
-
-              <button className="submit-button" type="submit">
-                Sign in
-                <svg viewBox="0 0 20 20" fill="none" aria-hidden="true">
-                  <path
-                    d="M4 10h12m-5-5 5 5-5 5"
-                    stroke="currentColor"
-                    strokeWidth="1.7"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
+            <div className="cta-row">
+              <button type="button" className="primary-btn large-btn">
+                Get started
               </button>
-              <p className="form-notice" role="status" aria-live="polite">
-                {notice}
-              </p>
-            </form>
-          ) : screen === "recovery" ? (
-            <form
-              key="recovery"
-              className="login-form recovery-form"
-              onSubmit={handleRecoverySubmit}
-            >
-              <label htmlFor="recovery-email">Work email</label>
-              <div className="input-wrap">
-                <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                  <rect
-                    x="3"
-                    y="5"
-                    width="18"
-                    height="14"
-                    rx="2.5"
-                    stroke="currentColor"
-                    strokeWidth="1.6"
-                  />
-                  <path
-                    d="m4 7 8 6 8-6"
-                    stroke="currentColor"
-                    strokeWidth="1.6"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
-                <input
-                  id="recovery-email"
-                  name="email"
-                  type="email"
-                  placeholder="you@company.com"
-                  autoComplete="email"
-                  value={email}
-                  onChange={(event) => updateEmail(event.target.value)}
-                  required
-                />
-              </div>
-              <button className="submit-button" type="submit">
-                Continue
-                <svg viewBox="0 0 20 20" fill="none" aria-hidden="true">
-                  <path
-                    d="M4 10h12m-5-5 5 5-5 5"
-                    stroke="currentColor"
-                    strokeWidth="1.7"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
-              </button>
-              <p className="form-notice" role="status" aria-live="polite">
-                {notice}
-              </p>
-              <button className="back-link" type="button" onClick={returnToLogin}>
-                <svg viewBox="0 0 20 20" fill="none" aria-hidden="true">
-                  <path
-                    d="M16 10H4m5 5-5-5 5-5"
-                    stroke="currentColor"
-                    strokeWidth="1.7"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
-                Back to sign in
-              </button>
-            </form>
-          ) : (
-            <form
-              key="registration"
-              className="login-form registration-form"
-              onSubmit={handleRegistrationSubmit}
-            >
-              <label htmlFor="full-name">Full name</label>
-              <div className="input-wrap">
-                <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                  <circle
-                    cx="12"
-                    cy="8"
-                    r="3.5"
-                    stroke="currentColor"
-                    strokeWidth="1.6"
-                  />
-                  <path
-                    d="M4.5 20a7.5 7.5 0 0 1 15 0"
-                    stroke="currentColor"
-                    strokeWidth="1.6"
-                    strokeLinecap="round"
-                  />
-                </svg>
-                <input
-                  id="full-name"
-                  name="fullName"
-                  type="text"
-                  placeholder="Your name"
-                  autoComplete="name"
-                  minLength="2"
-                  required
-                />
-              </div>
-              <label htmlFor="registration-email">Work email</label>
-              <div className="input-wrap">
-                <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                  <rect
-                    x="3"
-                    y="5"
-                    width="18"
-                    height="14"
-                    rx="2.5"
-                    stroke="currentColor"
-                    strokeWidth="1.6"
-                  />
-                  <path
-                    d="m4 7 8 6 8-6"
-                    stroke="currentColor"
-                    strokeWidth="1.6"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
-                <input
-                  id="registration-email"
-                  name="email"
-                  type="email"
-                  placeholder="you@company.com"
-                  autoComplete="email"
-                  value={email}
-                  onChange={(event) => updateEmail(event.target.value)}
-                  required
-                />
-              </div>
-              <label htmlFor="registration-password">Password</label>
-              <div className="input-wrap">
-                <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                  <rect
-                    x="4"
-                    y="10"
-                    width="16"
-                    height="11"
-                    rx="2.5"
-                    stroke="currentColor"
-                    strokeWidth="1.6"
-                  />
-                  <path
-                    d="M8 10V7a4 4 0 1 1 8 0v3"
-                    stroke="currentColor"
-                    strokeWidth="1.6"
-                    strokeLinecap="round"
-                  />
-                  <circle cx="12" cy="15.5" r="1.2" fill="currentColor" />
-                </svg>
-                <input
-                  id="registration-password"
-                  name="password"
-                  type={showPassword ? "text" : "password"}
-                  placeholder="At least 8 characters"
-                  autoComplete="new-password"
-                  minLength="8"
-                  required
-                />
-              </div>
-              <label htmlFor="confirm-password">Confirm password</label>
-              <div className="input-wrap">
-                <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                  <rect
-                    x="4"
-                    y="10"
-                    width="16"
-                    height="11"
-                    rx="2.5"
-                    stroke="currentColor"
-                    strokeWidth="1.6"
-                  />
-                  <path
-                    d="M8 10V7a4 4 0 1 1 8 0v3"
-                    stroke="currentColor"
-                    strokeWidth="1.6"
-                    strokeLinecap="round"
-                  />
-                  <circle cx="12" cy="15.5" r="1.2" fill="currentColor" />
-                </svg>
-                <input
-                  id="confirm-password"
-                  name="passwordConfirmation"
-                  type={showPassword ? "text" : "password"}
-                  placeholder="Re-enter your password"
-                  autoComplete="new-password"
-                  value={passwordConfirmation}
-                  onChange={(event) => setPasswordConfirmation(event.target.value)}
-                  minLength="8"
-                  required
-                />
-                <button
-                  className="password-toggle"
-                  type="button"
-                  onClick={() => setShowPassword((current) => !current)}
-                  aria-label={showPassword ? "Hide passwords" : "Show passwords"}
-                  aria-pressed={showPassword}
-                >
-                  <EyeIcon visible={showPassword} />
-                </button>
-              </div>
-              <button className="submit-button" type="submit">
-                Create account
-                <svg viewBox="0 0 20 20" fill="none" aria-hidden="true">
-                  <path
-                    d="M4 10h12m-5-5 5 5-5 5"
-                    stroke="currentColor"
-                    strokeWidth="1.7"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
-              </button>
-              <p className="form-notice" role="status" aria-live="polite">
-                {notice}
-              </p>
-              <button className="back-link" type="button" onClick={returnToLogin}>
-                <svg viewBox="0 0 20 20" fill="none" aria-hidden="true">
-                  <path
-                    d="M16 10H4m5 5-5-5 5-5"
-                    stroke="currentColor"
-                    strokeWidth="1.7"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
-                Back to sign in
-              </button>
-            </form>
-          )}
-
-          {screen === "login" && (
-            <div className="signup-prompt">
-              New to Routeflow?{" "}
-              <button className="text-link text-button" type="button" onClick={openRegistration}>
-                Create an account
+              <button type="button" className="ghost-btn large-btn light-ghost">
+                View platform
               </button>
             </div>
-          )}
-        </div>
 
-        <footer className="form-footer">
-          <span>© 2026 Routeflow Logistics</span>
-          <span>Need help? Contact your administrator.</span>
-        </footer>
-      </section>
-    </main>
+            <div className="mini-stats" aria-label="Key metrics">
+              {metrics.map((stat) => (
+                <div key={stat.label} className="stat-pill">
+                  <strong>{stat.value}</strong>
+                  <span>{stat.label}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="hero-visual" aria-label="Routeflow dashboard preview">
+            <div className="dashboard-panel main-panel">
+              <div className="panel-header">
+                <span className="panel-label">Live operations</span>
+                <span className="status-tag">Online</span>
+              </div>
+
+              <div className="map-surface">
+                <div className="map-route route-one" />
+                <div className="map-route route-two" />
+                <div className="map-stop stop-a" />
+                <div className="map-stop stop-b" />
+                <div className="map-stop stop-c" />
+              </div>
+
+              <div className="fleet-row">
+                <div>
+                  <span className="metric-label">Routes active</span>
+                  <strong>184</strong>
+                </div>
+                <div>
+                  <span className="metric-label">Avg. ETA</span>
+                  <strong>17 min</strong>
+                </div>
+              </div>
+            </div>
+
+            <div className="floating-card metric-card">
+              <span className="card-kicker">Today</span>
+              <strong>1,284</strong>
+              <span>Shipments tracked</span>
+            </div>
+
+            <div className="floating-card driver-card">
+              <div className="driver-avatar">AL</div>
+              <div>
+                <strong>Driver check-in</strong>
+                <span>Updated 2 mins ago</span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section className="logo-strip" aria-label="Client brands">
+          <span>VeloCart</span>
+          <span>SwiftGrid</span>
+          <span>NorthStar</span>
+          <span>MetroFleet</span>
+          <span>NovaCargo</span>
+        </section>
+
+        <section className="features-section" id="features">
+          <div className="section-heading">
+            <span className="eyebrow dark-eyebrow">
+              <span className="eyebrow-dot" />
+              WHY TEAMS CHOOSE ROUTEFLOW
+            </span>
+            <h2>Built for modern delivery operations.</h2>
+          </div>
+
+          <div className="feature-grid">
+            {features.map((feature) => (
+              <article key={feature.title} className="feature-card">
+                <div className="feature-icon" aria-hidden="true">{feature.icon}</div>
+                <h3>{feature.title}</h3>
+                <p>{feature.description}</p>
+              </article>
+            ))}
+          </div>
+        </section>
+
+        <section className="solutions-section" id="solutions">
+          <div className="solutions-copy">
+            <span className="eyebrow dark-eyebrow">
+              <span className="eyebrow-dot" />
+              END-TO-END DELIVERY CONTROL
+            </span>
+            <h2>One platform for dispatch, delivery, and service quality.</h2>
+            <p>
+              From demand spikes to driver shortages, Routeflow gives dispatch teams the
+              operational clarity they need to respond quickly and keep customers informed.
+            </p>
+          </div>
+
+          <div className="operations-stack">
+            <div className="operations-card highlight-card">
+              <div className="card-topline">
+                <span>Warehouse</span>
+                <span className="trend-up">+12.4%</span>
+              </div>
+              <strong>163 orders scheduled</strong>
+              <div className="progress-bars">
+                <span className="bar bar-1" />
+                <span className="bar bar-2" />
+                <span className="bar bar-3" />
+              </div>
+            </div>
+
+            <div className="operations-card compact-card">
+              <span className="mini-label">Priority loads</span>
+              <strong>28</strong>
+              <span className="mini-note">5 requiring reassignment</span>
+            </div>
+
+            <div className="operations-card compact-card caution-card">
+              <span className="mini-label">Late stops</span>
+              <strong>9</strong>
+              <span className="mini-note">2 impacted by traffic</span>
+            </div>
+          </div>
+        </section>
+
+        <section className="process-section" id="insights">
+          <div className="section-heading">
+            <span className="eyebrow dark-eyebrow">
+              <span className="eyebrow-dot" />
+              HOW IT WORKS
+            </span>
+            <h2>From planning to proof of delivery.</h2>
+          </div>
+
+          <div className="steps-grid">
+            {steps.map((step) => (
+              <article key={step.number} className="step-card">
+                <span className="step-number">{step.number}</span>
+                <h3>{step.title}</h3>
+                <p>{step.text}</p>
+              </article>
+            ))}
+          </div>
+        </section>
+
+        <section className="cta-banner" id="pricing">
+          <div>
+            <span className="eyebrow">
+              <span className="eyebrow-dot" />
+              READY TO SCALE?
+            </span>
+            <h2>Bring your entire delivery operation into one cloud-based command center.</h2>
+          </div>
+
+          <button type="button" className="primary-btn large-btn">
+            Talk to sales
+          </button>
+        </section>
+      </main>
+    </div>
   );
 }
 
