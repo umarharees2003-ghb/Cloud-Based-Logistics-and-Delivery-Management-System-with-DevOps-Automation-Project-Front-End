@@ -64,6 +64,244 @@ const sidebarGroups = [
   },
 ];
 
+const initialOrders = [
+  { id: "SHP-10482", customer: "Miriam Patel", route: "Newark → Brooklyn", status: "In transit", eta: "14:30", driver: "Alex Lee" },
+  { id: "SHP-10481", customer: "James Liu", route: "Jersey City → Queens", status: "Delayed", eta: "14:45", driver: "Morgan Reed" },
+  { id: "SHP-10480", customer: "Olivia Martin", route: "Newark → Manhattan", status: "Delivered", eta: "13:12", driver: "Sam Rivera" },
+  { id: "SHP-10479", customer: "Ethan Brooks", route: "Elizabeth → Hoboken", status: "Out for delivery", eta: "15:10", driver: "Alex Lee" },
+  { id: "SHP-10478", customer: "Sophia Chen", route: "Newark → Staten Island", status: "Pending", eta: "16:00", driver: "Unassigned" },
+  { id: "SHP-10477", customer: "Noah Williams", route: "Newark → Manhattan", status: "In transit", eta: "14:38", driver: "Jamie Park" },
+  { id: "SHP-10476", customer: "Ava Thompson", route: "Brooklyn → Manhattan", status: "Delivered", eta: "12:48", driver: "Sam Rivera" },
+  { id: "SHP-10475", customer: "Lucas Garcia", route: "Jersey City → Bronx", status: "Out for delivery", eta: "15:25", driver: "Taylor Morgan" },
+];
+
+const initialDrivers = [
+  { name: "Alex Lee", initials: "AL", vehicle: "Van · V-204", zone: "Brooklyn", status: "On route", deliveries: 8 },
+  { name: "Morgan Reed", initials: "MR", vehicle: "Van · V-118", zone: "Queens", status: "On route", deliveries: 6 },
+  { name: "Sam Rivera", initials: "SR", vehicle: "Truck · T-032", zone: "Manhattan", status: "Available", deliveries: 0 },
+  { name: "Jamie Park", initials: "JP", vehicle: "Van · V-081", zone: "Newark", status: "On route", deliveries: 5 },
+];
+
+const overviewMetrics = [
+  { label: "Total deliveries", value: "1,284", delta: "+12.8%", icon: "↗", tone: "mint" },
+  { label: "In transit", value: "342", delta: "28 drivers active", icon: "⇢", tone: "blue" },
+  { label: "Delivered today", value: "876", delta: "96.8% on time", icon: "✓", tone: "purple" },
+  { label: "Needs attention", value: "12", delta: "4 delayed orders", icon: "!", tone: "orange" },
+];
+
+function StatusBadge({ status }) {
+  const className = status.toLowerCase().replaceAll(" ", "-");
+  return <span className={`status-badge status-${className}`}>{status}</span>;
+}
+
+function OperationsWorkspace({ accountLabel, onSignOut }) {
+  const [activeSection, setActiveSection] = useState("overview");
+  const [orders, setOrders] = useState(initialOrders);
+  const [search, setSearch] = useState("");
+  const [statusFilter, setStatusFilter] = useState("All statuses");
+  const [showOrderForm, setShowOrderForm] = useState(false);
+  const [notice, setNotice] = useState("");
+  const [drivers, setDrivers] = useState(initialDrivers);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  const allItems = sidebarGroups.flatMap((group) => group.items);
+  const activeItem = allItems.find((item) => item.id === activeSection) ?? allItems[0];
+  const filteredOrders = orders.filter((order) => {
+    const matchesSearch = `${order.id} ${order.customer} ${order.route} ${order.driver}`
+      .toLowerCase()
+      .includes(search.toLowerCase());
+    return matchesSearch && (statusFilter === "All statuses" || order.status === statusFilter);
+  });
+
+  function createOrder(event) {
+    event.preventDefault();
+    const formData = new FormData(event.currentTarget);
+    const nextOrder = {
+      id: `SHP-${10500 + orders.length}`,
+      customer: String(formData.get("customer")).trim(),
+      route: `${String(formData.get("pickup")).trim()} → ${String(formData.get("dropoff")).trim()}`,
+      status: "Pending",
+      eta: String(formData.get("eta")),
+      driver: "Unassigned",
+    };
+    setOrders((current) => [nextOrder, ...current]);
+    setShowOrderForm(false);
+    setActiveSection("deliveries");
+    setSearch("");
+    setStatusFilter("All statuses");
+    setNotice(`Delivery ${nextOrder.id} has been created.`);
+    window.setTimeout(() => setNotice(""), 4000);
+  }
+
+  function updateOrderStatus(id, status) {
+    setOrders((current) => current.map((order) => order.id === id ? { ...order, status } : order));
+  }
+
+  function assignDriver(id, driver) {
+    setOrders((current) => current.map((order) => order.id === id ? { ...order, driver } : order));
+  }
+
+  function renderOverview() {
+    const deliveryCount = orders.length;
+    return (
+      <>
+        <section className="ops-metrics" aria-label="Delivery summary">
+          {overviewMetrics.map((metric) => (
+            <article className="ops-metric-card" key={metric.label}>
+              <span className={`ops-metric-icon ${metric.tone}`}>{metric.icon}</span>
+              <span className="ops-metric-label">{metric.label}</span>
+              <strong>{metric.label === "Total deliveries" ? deliveryCount.toLocaleString() : metric.value}</strong>
+              <span className="ops-metric-delta">{metric.delta}</span>
+            </article>
+          ))}
+        </section>
+        <div className="ops-content-grid">
+          <section className="ops-card activity-card">
+            <div className="ops-card-heading">
+              <div><h3>Delivery activity</h3><p>Orders processed over the last 7 days</p></div>
+              <button className="ops-select" type="button" onClick={() => setActiveSection("analytics")}>This week⌄</button>
+            </div>
+            <div className="activity-chart" aria-label="Weekly delivery volume">
+              {shipmentVolume.map(({ day, count }) => (
+                <div className="chart-column" key={day}>
+                  <span className="chart-count">{count}</span>
+                  <div className="chart-track"><span style={{ height: `${count / 72 * 100}%` }} /></div>
+                  <span className="chart-day">{day}</span>
+                </div>
+              ))}
+            </div>
+          </section>
+          <section className="ops-card route-card">
+            <div className="ops-card-heading">
+              <div><h3>Live network</h3><p>Active routes across your service area</p></div>
+              <span className="live-pill"><i /> Live</span>
+            </div>
+            <div className="ops-map">
+              <span className="map-grid" />
+              <span className="ops-map-route route-alpha" />
+              <span className="ops-map-route route-beta" />
+              <span className="ops-map-route route-gamma" />
+              <i className="ops-map-pin pin-alpha">●</i><i className="ops-map-pin pin-beta">●</i>
+              <i className="ops-map-pin pin-gamma">●</i><i className="ops-map-pin pin-delta">●</i>
+              <span className="map-city city-newark">Newark</span><span className="map-city city-brooklyn">Brooklyn</span>
+              <span className="map-city city-manhattan">Manhattan</span>
+            </div>
+            <div className="route-summary"><span><i className="legend-dot green-dot" />28 active drivers</span><span>18 routes</span></div>
+          </section>
+        </div>
+        <section className="ops-card recent-card">
+          <div className="ops-card-heading">
+            <div><h3>Recent deliveries</h3><p>Keep track of your latest orders</p></div>
+            <button className="ops-text-button" type="button" onClick={() => setActiveSection("deliveries")}>View all deliveries <span>→</span></button>
+          </div>
+          <OrdersTable orders={orders.slice(0, 5)} onStatusChange={updateOrderStatus} onDriverChange={assignDriver} compact />
+        </section>
+      </>
+    );
+  }
+
+  function renderDeliveries() {
+    return (
+      <section className="ops-card deliveries-card">
+        <div className="delivery-toolbar">
+          <label className="ops-search"><span aria-hidden="true">⌕</span><input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Search order, customer or route" /></label>
+          <select className="ops-select" value={statusFilter} onChange={(event) => setStatusFilter(event.target.value)} aria-label="Filter by delivery status">
+            {["All statuses", "Pending", "In transit", "Out for delivery", "Delivered", "Delayed"].map((status) => <option key={status}>{status}</option>)}
+          </select>
+          <button className="ops-outline-button" type="button" onClick={() => { setSearch(""); setStatusFilter("All statuses"); }}>Reset</button>
+        </div>
+        <OrdersTable orders={filteredOrders} onStatusChange={updateOrderStatus} onDriverChange={assignDriver} />
+        {filteredOrders.length === 0 && <p className="empty-state">No deliveries match your search. Try a different keyword or status.</p>}
+        <div className="table-footer">Showing {filteredOrders.length} of {orders.length} deliveries <span>Updated just now</span></div>
+      </section>
+    );
+  }
+
+  function renderFleet() {
+    return (
+      <section className="ops-card fleet-card">
+        <div className="ops-card-heading"><div><h3>Driver roster</h3><p>Manage drivers and current assignments</p></div><span className="fleet-count">{drivers.length} drivers</span></div>
+        <div className="driver-grid">
+          {drivers.map((driver) => (
+            <article className="driver-profile" key={driver.name}>
+              <div className="driver-profile-top"><span className="driver-initials">{driver.initials}</span><StatusBadge status={driver.status} /></div>
+              <h4>{driver.name}</h4><p>{driver.vehicle}</p>
+              <div className="driver-profile-detail"><span>Service zone</span><strong>{driver.zone}</strong></div>
+              <div className="driver-profile-detail"><span>Active deliveries</span><strong>{driver.deliveries}</strong></div>
+              <button className="ops-outline-button assign-button" type="button" onClick={() => setDrivers((current) => current.map((item) => item.name === driver.name ? { ...item, status: item.status === "Available" ? "On route" : "Available" } : item))}>
+                {driver.status === "Available" ? "Assign route" : "Mark available"}
+              </button>
+            </article>
+          ))}
+        </div>
+      </section>
+    );
+  }
+
+  function renderAnalytics() {
+    const delivered = orders.filter((order) => order.status === "Delivered").length;
+    return (
+      <>
+        <section className="ops-metrics report-metrics">
+          <article className="ops-metric-card"><span className="ops-metric-label">Delivery success</span><strong>96.8%</strong><span className="ops-metric-delta">↑ 2.4% vs last week</span></article>
+          <article className="ops-metric-card"><span className="ops-metric-label">Completed in this view</span><strong>{delivered}</strong><span className="ops-metric-delta">of {orders.length} sample orders</span></article>
+          <article className="ops-metric-card"><span className="ops-metric-label">Average delivery time</span><strong>2h 18m</strong><span className="ops-metric-delta">↓ 14 min vs last week</span></article>
+          <article className="ops-metric-card"><span className="ops-metric-label">Customer satisfaction</span><strong>4.9 / 5</strong><span className="ops-metric-delta">From 328 ratings</span></article>
+        </section>
+        <section className="ops-card analytics-details"><div className="ops-card-heading"><div><h3>Weekly performance</h3><p>Completed deliveries by day</p></div><span className="report-period">Last 7 days</span></div><div className="report-bars">{shipmentVolume.map((day) => <div key={day.day}><span>{day.count} deliveries</span><i style={{ width: `${day.count / 72 * 100}%` }} /><strong>{day.day}</strong></div>)}</div></section>
+      </>
+    );
+  }
+
+  function renderSecondary() {
+    if (activeSection === "fleet") return renderFleet();
+    if (activeSection === "analytics") return renderAnalytics();
+    const content = {
+      devops: { title: "DevOps automation", description: "Monitor the health of your delivery platform and deployment pipeline.", cards: [["CI pipeline", "All checks passing", "Last run 8 minutes ago"], ["Deployment", "Production is up to date", "Release v1.8.2"], ["Application health", "Healthy", "99.98% uptime this month"], ["Monitoring", "Active", "Logs and alerts are connected"]] },
+      team: { title: "Team & access", description: "Manage the people who keep your deliveries moving.", cards: [["Operations team", "12 members", "Dispatch and support"], ["Drivers", `${drivers.length} active profiles`, "Manage from Fleet management"], ["Administrator", accountLabel || "Demo account", "Full workspace access"], ["Access policy", "Role-based access", "Permissions are configurable"]] },
+      integrations: { title: "Integrations", description: "Connect the tools your logistics operation relies on.", cards: [["Maps & routing", "Connected", "Route optimization enabled"], ["Email notifications", "Connected", "Delivery updates enabled"], ["Cloud storage", "Ready to connect", "Store proof of delivery"], ["API access", "Available", "Manage keys in settings"]] },
+      settings: { title: "Workspace settings", description: "Configure your Routeflow workspace preferences.", cards: [["Organization", "Routeflow Logistics", "Company profile and service area"], ["Notifications", "Email and in-app", "Choose which events to receive"], ["Security", "Two-step verification", "Protect administrator accounts"], ["Preferences", "America / New York", "Time zone and display options"]] },
+    }[activeSection];
+    return <section className="ops-card secondary-section"><div className="ops-card-heading"><div><h3>{content.title}</h3><p>{content.description}</p></div></div><div className="secondary-grid">{content.cards.map(([title, value, detail]) => <article className="secondary-card" key={title}><span>{title}</span><strong>{value}</strong><p>{detail}</p></article>)}</div></section>;
+  }
+
+  return (
+    <div className="ops-app">
+      <aside className={`ops-sidebar ${sidebarOpen ? "sidebar-open" : ""}`}>
+        <a className="brand ops-brand" href="#overview" onClick={(event) => { event.preventDefault(); setActiveSection("overview"); }}><BrandMark /><span>routeflow</span></a>
+        <div className="workspace-switch"><span className="workspace-avatar">R</span><span><strong>Routeflow Logistics</strong><small>Operations workspace</small></span><span className="switch-chevron">⌄</span></div>
+        <nav className="ops-nav" aria-label="Operations navigation">
+          {sidebarGroups.map((group) => <div className="nav-group" key={group.label}><span className="nav-group-label">{group.label}</span>{group.items.map((item) => <button key={item.id} type="button" className={`ops-nav-link ${activeSection === item.id ? "selected" : ""}`} onClick={() => { setActiveSection(item.id); setSidebarOpen(false); }}><span className="nav-icon" aria-hidden="true">{item.icon}</span><span>{item.label}</span>{item.id === "deliveries" && <span className="nav-count">{orders.length}</span>}</button>)}</div>)}
+        </nav>
+        <div className="sidebar-bottom"><div className="support-card"><span className="support-icon">✳</span><strong>Need a hand?</strong><p>Our logistics team is here to help.</p><button type="button" onClick={() => setNotice("Support request noted. Our team will be in touch.")}>Contact support <span>→</span></button></div><button className="sidebar-profile" type="button" onClick={onSignOut}><span className="profile-avatar">{(accountLabel || "D").slice(0, 1).toUpperCase()}</span><span><strong>{accountLabel || "Demo account"}</strong><small>Administrator · Sign out</small></span><span className="profile-more">↗</span></button></div>
+      </aside>
+      <div className="ops-main">
+        <header className="ops-topbar">
+          <button className="mobile-menu" aria-label="Open navigation" type="button" onClick={() => setSidebarOpen(!sidebarOpen)}>☰</button>
+          <div className="breadcrumb"><span>Workspace</span><b>/</b><strong>{activeItem.label}</strong></div>
+          <div className="topbar-tools"><span className="system-status"><i />All systems operational</span><button className="notification-button" type="button" aria-label="Notifications" onClick={() => setNotice("You are all caught up. No new notifications.")}>♧<i /></button><span className="topbar-divider" /><button className="topbar-user" type="button" onClick={onSignOut}><span className="profile-avatar">{(accountLabel || "D").slice(0, 1).toUpperCase()}</span><span>{accountLabel || "Demo account"}</span><span>⌄</span></button></div>
+        </header>
+        <main className="ops-page">
+          <div className="ops-page-heading"><div><span className="ops-date">TUESDAY, OCTOBER 6, 2026</span><h1>{activeSection === "overview" ? "Good morning, " + ((accountLabel || "there").split("@")[0].split(" ")[0]) : activeItem.label}<span>{activeSection === "overview" ? "." : ""}</span></h1><p>{activeSection === "overview" ? "Here’s what’s happening across your delivery network today." : activeSection === "deliveries" ? "Create, search, assign and track every delivery in one place." : activeSection === "fleet" ? "See driver availability and manage your active routes." : "A clear view of your logistics operation."}</p></div><div className="heading-actions">{activeSection === "deliveries" && <button className="ops-primary-button" type="button" onClick={() => setShowOrderForm(true)}><span>＋</span> New delivery</button>}{activeSection === "overview" && <button className="ops-outline-button" type="button" onClick={() => setActiveSection("deliveries")}>View deliveries <span>→</span></button>}</div></div>
+          {notice && <div className="ops-notice" role="status"><span>✓</span>{notice}<button type="button" aria-label="Dismiss notification" onClick={() => setNotice("")}>×</button></div>}
+          {activeSection === "overview" && renderOverview()}
+          {activeSection === "deliveries" && renderDeliveries()}
+          {!["overview", "deliveries"].includes(activeSection) && renderSecondary()}
+          <footer className="ops-footer"><span>© 2026 Routeflow Logistics</span><span>Demo workspace · Data is stored in this session only</span></footer>
+        </main>
+      </div>
+      {sidebarOpen && <button className="sidebar-scrim" type="button" aria-label="Close navigation" onClick={() => setSidebarOpen(false)} />}
+      {showOrderForm && <div className="modal-backdrop" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) setShowOrderForm(false); }}><section className="order-modal" role="dialog" aria-modal="true" aria-labelledby="new-order-title"><div className="modal-heading"><div><span className="modal-eyebrow">DELIVERY DETAILS</span><h2 id="new-order-title">Create a delivery</h2><p>Add a customer and route to get this order moving.</p></div><button type="button" aria-label="Close form" onClick={() => setShowOrderForm(false)}>×</button></div><form className="order-form" onSubmit={createOrder}><label>Customer name<input name="customer" placeholder="e.g. Jordan Smith" minLength="2" required /></label><div className="form-row"><label>Pickup location<input name="pickup" placeholder="City or address" required /></label><label>Drop-off location<input name="dropoff" placeholder="City or address" required /></label></div><label>Estimated delivery time<input name="eta" type="time" defaultValue="16:30" required /></label><div className="modal-actions"><button type="button" className="ops-outline-button" onClick={() => setShowOrderForm(false)}>Cancel</button><button className="ops-primary-button" type="submit">Create delivery</button></div></form></section></div>}
+    </div>
+  );
+}
+
+function OrdersTable({ orders, onStatusChange, onDriverChange, compact = false }) {
+  return (
+    <div className="orders-table-wrap"><table className={`orders-table ${compact ? "compact-table" : ""}`}><thead><tr><th>Order</th><th>Customer</th><th>Route</th><th>Driver</th><th>Status</th><th>ETA</th></tr></thead><tbody>{orders.map((order) => <tr key={order.id}><td><strong className="order-id">{order.id}</strong><span className="order-type">Standard delivery</span></td><td>{order.customer}</td><td>{order.route}</td><td><label className="driver-select-wrap"><span className="assigned-driver"><i>{order.driver === "Unassigned" ? "—" : order.driver.split(" ").map((part) => part[0]).join("")}</i>{order.driver}</span><select aria-label={`Assign driver for ${order.id}`} value={order.driver} onChange={(event) => onDriverChange(order.id, event.target.value)}><option>Unassigned</option>{initialDrivers.map((driver) => <option key={driver.name}>{driver.name}</option>)}</select></label></td><td><label className="status-select-wrap"><StatusBadge status={order.status} /><select aria-label={`Update ${order.id} status`} value={order.status} onChange={(event) => onStatusChange(order.id, event.target.value)}><option>Pending</option><option>In transit</option><option>Out for delivery</option><option>Delivered</option><option>Delayed</option></select><span aria-hidden="true">⌄</span></label></td><td>{order.eta}</td></tr>)}</tbody></table></div>
+  );
+}
+
 function WelcomeScreen({ onAuth }) {
   return (
     <div className="welcome-shell">
@@ -367,6 +605,10 @@ function App() {
         onSuccess={openPlatform}
       />
     );
+  }
+
+  if (screen === "platform") {
+    return <OperationsWorkspace accountLabel={accountLabel} onSignOut={signOut} />;
   }
 
   return (
